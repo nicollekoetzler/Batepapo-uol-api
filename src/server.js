@@ -17,8 +17,6 @@ const server = express();
 server.use(cors());
 server.use(json());
 
-// formato participante: {name: 'João', lastStatus: 12313123}
-// formato mensagem: {from: 'João', to: 'Todos', text: 'oi galera', type: 'message', time: '20:04:37'}
 
 server.post("/participants", async (req, res) => {
 
@@ -60,6 +58,21 @@ server.post("/participants", async (req, res) => {
         res.sendStatus(500);
     }
 
-})
+});
+
+server.get("/participants", async (req, res) => {
+
+    try{
+
+        const participantsList = await db.collection("participants").find().toArray()
+
+        res.status(200).send(participantsList);
+
+    }catch(err){
+
+        console.log(err)
+        res.sendStatus(500)
+    }
+});
 
 server.listen(process.env.PORT, () => console.log("servidor rodando"));
