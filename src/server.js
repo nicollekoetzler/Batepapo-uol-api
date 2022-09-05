@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { MongoClient, ObjectId } from "mongodb";
 import joi from "joi";
+import dayjs from "dayjs";
 
 dotenv.config()
 
@@ -40,6 +41,19 @@ server.post("/participants", async (req, res) => {
         if (isRegistered){
             return res.sendStatus(409);
         }
+
+        await db.collection("participants").insertOne({
+            name: userData.name,
+            lastStatus: Date.now()
+        })
+
+        await db.collection("messages").insertOne({
+            from: userData.name,
+            to: "Todos",
+            text: "entra na sala...",
+            type: "status",
+            time: dayjs(Date.now()).format("HH:mm:ss"),
+        })
 
         res.sendStatus(201);
     }catch{
