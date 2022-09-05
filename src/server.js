@@ -75,4 +75,35 @@ server.get("/participants", async (req, res) => {
     }
 });
 
+server.post("/messages", async (req, res) => {
+    const from = req.headers.user
+
+    const body = req.body
+    const bodySchema = joi.object(
+        {
+            to: joi.string().required(),
+            text: joi.string().required(),
+            type: joi.string().valid('message', 'private_message').required()
+        }
+    )
+    const isBodyValid = bodySchema.validate(body);
+
+    if (isBodyValid.error || !from){
+        return res.sendStatus(422);
+    }
+
+    try{
+
+        const userRegistered = await db.collection("participants").findOne({name: from});
+
+        if (!userRegistered){
+            return res.sendStatus(422);
+        }
+
+        res.sendStatus(200)
+    }catch{
+        res.sendStatus(500)
+    }
+})
+
 server.listen(process.env.PORT, () => console.log("servidor rodando"));
